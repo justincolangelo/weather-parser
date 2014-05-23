@@ -147,15 +147,17 @@ namespace WeatherUpdater
             data["nextDayWeatherIcon"] = conditions[4].Attribute("weather-summary").Value;
 
             // Select the temperatures from the document
-            var temps = result.Descendants("temperature").Elements("value").ToList();
+            var temps = result.Descendants("temperature").ToList();
+            var highTemps = (from ht in temps where ht.Attribute("type").Value == "maximum" select ht).Elements("value").ToList();
+            var lowTemps = (from lt in temps where lt.Attribute("type").Value == "minimum" select lt).Elements("value").ToList();
 
             // Assign vars for SQL Update statement
-            data["todayHigh"] = temps[0].Value;
-            data["todayLow"] = temps[1].Value;
-            data["tomorrowHigh"] = temps[2].Value;
-            data["tomorrowLow"] = temps[3].Value;
-            data["nextDayHigh"] = temps[4].Value;
-            data["nextDayLow"] = temps[5].Value;
+            data["todayHigh"] = highTemps[0].Value;
+            data["todayLow"] = lowTemps[0].Value;
+            data["tomorrowHigh"] = highTemps[1].Value;
+            data["tomorrowLow"] = lowTemps[1].Value;
+            data["nextDayHigh"] = highTemps[2].Value;
+            data["nextDayLow"] = lowTemps[2].Value;
 
             // Select the text forecast for right now
             var forecastNow = (from fc in result.Descendants("data").Elements("parameters")
